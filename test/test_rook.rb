@@ -21,7 +21,7 @@ class TestRook < Minitest::Test
       assert_includes(moves, Square.at(3, i)) if i != 3
     end
     # Assert no other moves included
-    assert_equal(moves.length, 14)
+    assert_equal(14, moves.length)
   end
 
   def test_black_rook_can_move_all_straight_directions
@@ -41,7 +41,7 @@ class TestRook < Minitest::Test
       assert_includes(moves, Square.at(3, i)) if i != 3
     end
     # Assert no other moves included
-    assert_equal(moves.length, 14)
+    assert_equal(14, moves.length)
   end
 
   def test_white_rook_blocked_by_white_piece_below
@@ -141,6 +141,6 @@ class TestRook < Minitest::Test
       assert_includes(moves, Square.at(3, i)) if i != 3 && !blocked_squares.include?(Square.at(3, i))
     end
     # Assert no other moves included
-    assert_equal(moves.length, (rook_player == pawn_player ? 12 : 13))
+    assert_equal((rook_player == pawn_player ? 12 : 13), moves.length)
   end
 end

@@ -114,8 +114,50 @@ module Chessington
     class Bishop
       include Piece
 
+      def is_obstructed?(board, square, new_square)
+        rows = [square.row, new_square.row]
+        cols = [square.column, new_square.column]
+        (rows.min..rows.max).any? do |row|
+          (cols.min..cols.max).any? do |col|
+            test_square = Square.at(row, col)
+            next if test_square == square
+            board.get_piece(test_square)
+          end
+        end
+      end
+
       def available_moves(board)
-        []
+        # Lambda function to check if a move is valid
+        move_is_valid = lambda do |board, current_square, new_square|
+          # Check if square is valid first or is_obstructed? will raise an error
+          is_valid_square = board.is_valid_square?(new_square)
+          if is_valid_square && is_obstructed?(board, current_square, new_square)
+            # If we're obstructed, the obstructing piece is at new_square and it belongs to the opponent then valid
+            new_square_piece = board.get_piece(new_square)
+            new_square_piece && new_square_piece.player != @player
+          else
+            is_valid_square
+          end
+        end
+
+        available_moves = []
+        current_square = board.find_piece(self)
+
+        (1...Board.get_board_size).each do |i|
+          new_square = Square.at(current_square.row - i, current_square.column - i)
+          available_moves << new_square if move_is_valid.call(board, current_square, new_square)
+
+          new_square = Square.at(current_square.row - i, current_square.column + i)
+          available_moves << new_square if move_is_valid.call(board, current_square, new_square)
+
+          new_square = Square.at(current_square.row + i, current_square.column - i)
+          available_moves << new_square if move_is_valid.call(board, current_square, new_square)
+
+          new_square = Square.at(current_square.row + i, current_square.column + i)
+          available_moves << new_square if move_is_valid.call(board, current_square, new_square)
+        end
+
+        available_moves
       end
     end
 
