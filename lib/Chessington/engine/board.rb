@@ -79,6 +79,10 @@ module Chessington
         end
       end
 
+      def is_valid_square?(square)
+        square.row >= 0 && square.row < BOARD_SIZE && square.column >= 0 && square.column < BOARD_SIZE
+      end
+
       private_class_method :create_empty_board, :create_starting_board
     end
   end
