@@ -43,6 +43,10 @@ module Chessington
         board
       end
 
+      def self.get_board_size
+        BOARD_SIZE
+      end
+
       ##
       # Places the piece at the given position on the board.
       def set_piece(square, piece)

@@ -17,8 +17,12 @@ module Chessington
     end
 
     Square = Struct.new(:row, :column) do
-      class <<self
+      class << self
         alias_method :at,:new
+
+        def ==(other)
+          self.row == other.row && self.column == other.column
+        end
       end
     end
   end

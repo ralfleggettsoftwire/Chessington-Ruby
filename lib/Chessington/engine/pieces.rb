@@ -124,8 +124,53 @@ module Chessington
     class Rook
       include Piece
 
+      def is_obstructed?(board, square, new_square)
+        if square.row == new_square.row
+          # Moving horizontally
+          ([square.column, new_square.column].min..[square.column, new_square.column].max).any? do |col|
+            col != square.column && board.get_piece(Square.at(square.row, col))
+          end
+        else
+          # Moving vertically
+          ([square.row, new_square.row].min..[square.row, new_square.row].max).any? do |row|
+            row != square.row && board.get_piece(Square.at(row, square.column))
+          end
+        end
+      end
+
       def available_moves(board)
-        []
+        available_moves = []
+        current_square = board.find_piece(self)
+
+        # Add moves vertically
+        (0...Board.get_board_size).each do |row|
+          next if row == current_square.row
+          new_square = Square.at(row, current_square.column)
+          if is_obstructed?(board, current_square, new_square)
+            # If we're obstructed, the obstructing piece is at new_square and it belongs to the opponent, add to
+            # available_moves
+            new_square_piece = board.get_piece(new_square)
+            available_moves << new_square if new_square_piece && new_square_piece.player != @player
+          else
+            available_moves << new_square
+          end
+        end
+
+        # Add moves horizontally
+        (0...Board.get_board_size).each do |col|
+          next if col == current_square.column
+          new_square = Square.at(current_square.row, col)
+          if is_obstructed?(board, current_square, new_square)
+            # If we're obstructed, the obstructing piece is at new_square and it belongs to the opponent, add to
+            # available_moves
+            new_square_piece = board.get_piece(new_square)
+            available_moves << new_square if new_square_piece && new_square_piece.player != @player
+          else
+            available_moves << new_square
+          end
+        end
+
+        available_moves
       end
     end
 
