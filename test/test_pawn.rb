@@ -326,7 +326,6 @@ class TestPawn < Minitest::Test
   end
 
   def test_black_pawns_cannot_move_diagonally_except_to_capture
-
     # Arrange
     board = Board.empty
     pawn = Pawn.new(Player::BLACK)
@@ -343,5 +342,132 @@ class TestPawn < Minitest::Test
     # Assert
     refute_includes(moves, Square.at(2, 3))
     refute_includes(moves, Square.at(2, 5))
+  end
+
+  def test_white_pawn_can_en_passant
+    # Arrange
+    board = Board.empty
+    white_pawn = Pawn.new(Player::WHITE)
+    white_pawn_square = Square.at(2, 4)
+    black_pawn = Pawn.new(Player::BLACK)
+    black_pawn_square = Square.at(6, 5)
+    board.set_piece(white_pawn_square, white_pawn)
+    board.set_piece(black_pawn_square, black_pawn)
+
+    # Act
+    white_pawn.move_to(board, Square.at(4, 4))  # White must move first
+    black_pawn.move_to(board, Square.at(4, 5))
+    moves = white_pawn.available_moves(board)
+
+    # Assert
+    assert_includes(moves, Square.at(5, 5))
+  end
+
+  def test_black_pawn_can_en_passant
+    # Arrange
+    board = Board.empty
+    black_pawn = Pawn.new(Player::BLACK)
+    black_pawn_square = Square.at(3, 3)
+    white_pawn = Pawn.new(Player::WHITE)
+    white_pawn_square = Square.at(1, 2)
+    board.set_piece(white_pawn_square, white_pawn)
+    board.set_piece(black_pawn_square, black_pawn)
+
+    # Act
+    white_pawn.move_to(board, Square.at(3, 2))
+    moves = black_pawn.available_moves(board)
+
+    # Assert
+    assert_includes(moves, Square.at(2, 2))
+  end
+
+  def test_white_pawn_cannot_en_passant_if_not_last_move
+    # Arrange
+    board = Board.empty
+    white_pawn = Pawn.new(Player::WHITE)
+    white_pawn_square = Square.at(4, 4)
+    black_pawn = Pawn.new(Player::BLACK)
+    black_pawn_square = Square.at(6, 5)
+    white_pawn2 = Pawn.new(Player::WHITE)
+    white_pawn2_square = Square.at(1, 0)
+    black_pawn2 = Pawn.new(Player::BLACK)
+    black_pawn2_square = Square.at(6, 0)
+    board.set_piece(white_pawn_square, white_pawn)
+    board.set_piece(black_pawn_square, black_pawn)
+    board.set_piece(white_pawn2_square, white_pawn2)
+    board.set_piece(black_pawn2_square, black_pawn2)
+    board.current_player = Player::BLACK
+
+    # Act
+    black_pawn.move_to(board, Square.at(4, 5))
+    white_pawn2.move_to(board, Square.at(2, 0))
+    black_pawn2.move_to(board, Square.at(5, 0))
+    moves = white_pawn.available_moves(board)
+
+    # Assert
+    refute_includes(moves, Square.at(5, 5))
+  end
+
+  def test_black_pawn_cannot_en_passant_if_not_last_move
+    # Arrange
+    board = Board.empty
+    black_pawn = Pawn.new(Player::BLACK)
+    black_pawn_square = Square.at(3, 3)
+    white_pawn = Pawn.new(Player::WHITE)
+    white_pawn_square = Square.at(1, 2)
+    white_pawn2 = Pawn.new(Player::WHITE)
+    white_pawn2_square = Square.at(1, 0)
+    black_pawn2 = Pawn.new(Player::BLACK)
+    black_pawn2_square = Square.at(6, 0)
+    board.set_piece(white_pawn_square, white_pawn)
+    board.set_piece(black_pawn_square, black_pawn)
+    board.set_piece(white_pawn2_square, white_pawn2)
+    board.set_piece(black_pawn2_square, black_pawn2)
+
+    # Act
+    white_pawn.move_to(board, Square.at(3, 2))
+    black_pawn2.move_to(board, Square.at(5, 0))
+    white_pawn2.move_to(board, Square.at(2, 0))
+    moves = black_pawn.available_moves(board)
+
+    # Assert
+    refute_includes(moves, Square.at(2, 2))
+  end
+
+  def test_white_pawn_en_passant_removes_opponent_pawn
+    # Arrange
+    board = Board.empty
+    white_pawn = Pawn.new(Player::WHITE)
+    white_pawn_square = Square.at(4, 4)
+    black_pawn = Pawn.new(Player::BLACK)
+    black_pawn_square = Square.at(6, 3)
+    board.set_piece(white_pawn_square, white_pawn)
+    board.set_piece(black_pawn_square, black_pawn)
+    board.current_player = Player::BLACK
+
+    # Act
+    black_pawn.move_to(board, Square.at(4, 3))
+    white_pawn.move_to(board, Square.at(5, 3))
+
+    # Assert
+    assert_nil(board.get_piece(Square.at(4, 3)))
+  end
+
+  def test_black_pawn_en_passant_removes_opponent_pawn
+    # Arrange
+    board = Board.empty
+    black_pawn = Pawn.new(Player::BLACK)
+    black_pawn_square = Square.at(3, 3)
+    white_pawn = Pawn.new(Player::WHITE)
+    white_pawn_square = Square.at(1, 4)
+    board.set_piece(white_pawn_square, white_pawn)
+    board.set_piece(black_pawn_square, black_pawn)
+
+    # Act
+    white_pawn.move_to(board, Square.at(3, 4))
+    black_pawn.move_to(board, Square.at(2, 4))
+
+    # Assert
+    assert_nil(board.get_piece(Square.at(3, 4)))
   end
 end

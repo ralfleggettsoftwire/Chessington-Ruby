@@ -10,12 +10,14 @@ module Chessington
     ##
     #  A representation of the chess board, and the pieces on it.
     class Board
-      attr_accessor :current_player, :board
+      attr_accessor :current_player, :board, :last_white_piece_to_move, :last_black_piece_to_move
 
       BOARD_SIZE = 8
       def initialize(player, board_state)
         @current_player = Player::WHITE
         @board = board_state
+        @last_white_piece_to_move = nil
+        @last_black_piece_to_move = nil
       end
 
       def self.empty
@@ -81,13 +83,28 @@ module Chessington
       def move_piece(from_square, to_square)
         moving_piece = get_piece(from_square)
         if !moving_piece.nil? && moving_piece.player == @current_player
+          en_passant_check_and_execute(from_square, to_square) if moving_piece.instance_of?(Pawn)
           set_piece(to_square, moving_piece)
           set_piece(from_square, nil)
+          if @current_player == Player::WHITE
+            @last_white_piece_to_move.last_piece_to_move = false if @last_white_piece_to_move
+            @last_white_piece_to_move = moving_piece
+          else
+            @last_black_piece_to_move.last_piece_to_move = false if @last_black_piece_to_move
+            @last_black_piece_to_move = moving_piece
+          end
+          moving_piece.last_piece_to_move = true
           @current_player = @current_player.opponent
         end
       end
 
       private_class_method :create_empty_board, :create_starting_board
+
+      private def en_passant_check_and_execute(from_square, to_square)
+        if from_square.column != to_square.column
+          set_piece(Square.at(from_square.row, to_square.column), nil)
+        end
+      end
     end
   end
 end

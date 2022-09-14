@@ -3,10 +3,13 @@ module Chessington
     ##
     # An abstract base class from which all pieces inherit.
     module Piece
-      attr_reader :player
+      attr_reader :player, :moves_made
+      attr_accessor :last_piece_to_move
 
       def initialize(player)
         @player = player
+        @moves_made = 0
+        @last_piece_to_move = false
       end
 
       ##
@@ -26,6 +29,7 @@ module Chessington
       def move_to(board, new_square)
         current_square = board.find_piece(self)
         board.move_piece(current_square, new_square)
+        @moves_made += 1
       end
 
       ##
@@ -94,16 +98,6 @@ module Chessington
     class Pawn
       include Piece
 
-      def initialize(player)
-        super
-        @has_moved = false
-      end
-
-      def move_to(board, new_square)
-        super
-        @has_moved = true
-      end
-
       def is_obstructed?(board, square, new_square)
         start_row = square.row + (@player == Player::WHITE ? 1 : -1)
         end_row = new_square.row
@@ -124,17 +118,31 @@ module Chessington
         # Move forwards twice if not moved
         new_square = current_square.copy.add(@player == Player::WHITE ? 2 : -2, 0)
         available_moves << new_square unless
-          !Board.is_valid_square?(new_square) || @has_moved || is_obstructed?(board, current_square, new_square)
+          !Board.is_valid_square?(new_square) || @moves_made > 0 || is_obstructed?(board, current_square, new_square)
 
         # Check left diagonal for opponent
         new_square = current_square.copy.add(@player == Player::WHITE ? 1 : -1, @player == Player::WHITE ? -1 : 1)
         available_moves << new_square if
           Board.is_valid_square?(new_square) && opponent_piece_at?(board, new_square)
 
+        # Check for en passant on left (and allow move to new_square if so)
+        en_passant_square = current_square.copy.add(0, @player == Player::WHITE ? -1 : 1)
+        available_moves << new_square if
+          Board.is_valid_square?(new_square) && opponent_piece_at?(board, en_passant_square) &&
+            board.get_piece(en_passant_square).moves_made == 1 &&
+            board.get_piece(en_passant_square).last_piece_to_move && !available_moves.include?(new_square)
+
         # Check right diagonal for opponent
         new_square = current_square.copy.add(@player == Player::WHITE ? 1 : -1, @player == Player::WHITE ? 1 : -1)
         available_moves << new_square if
           Board.is_valid_square?(new_square) && opponent_piece_at?(board, new_square)
+
+        # Check for en passant on right (and allow move to new_square if so)
+        en_passant_square = current_square.copy.add(0, @player == Player::WHITE ? 1 : -1)
+        available_moves << new_square if
+          Board.is_valid_square?(new_square) && opponent_piece_at?(board, en_passant_square) &&
+            board.get_piece(en_passant_square).moves_made == 1 &&
+            board.get_piece(en_passant_square).last_piece_to_move && !available_moves.include?(new_square)
 
         available_moves
       end
