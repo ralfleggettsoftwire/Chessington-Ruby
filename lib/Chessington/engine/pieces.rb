@@ -217,9 +217,16 @@ module Chessington
     # A class representing a chess king.
     class King
       include Piece
+      include SweepingPiece
 
       def available_moves(board)
-        []
+        available_moves = []
+        current_square = board.find_piece(self)
+
+        ["NE", "NW", "SE", "SW", "N", "S", "E", "W"].each do |dir|
+          available_moves += get_moves_in_direction(board, dir, 1, current_square)
+        end
+        available_moves
       end
     end
   end
