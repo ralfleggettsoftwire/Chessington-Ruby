@@ -46,10 +46,6 @@ module HelperFunctions
       moves = piece.available_moves(board)
 
       # Assert
-      assert_blocked_test(moves, blocked_squares, move_squares, num_expected_moves)
-    end
-
-    private def assert_blocked_test(moves, blocked_squares, move_squares, num_expected_moves)
       # Check blocked squares are NOT included
       blocked_squares.each { |square| refute_includes(moves, square) }
       # Check all moves EXCEPT to own square and blocked are included

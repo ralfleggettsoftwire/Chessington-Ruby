@@ -145,8 +145,20 @@ module Chessington
     class Knight
       include Piece
 
+      def is_obstructed?(board, square, new_square, *)
+        !opponent_piece_at?(board, new_square) && board.get_piece(new_square)
+      end
+
       def available_moves(board)
-        []
+        available_moves = []
+        current_square = board.find_piece(self)
+
+        [[2, -1], [2, 1], [1, 2], [-1, 2], [-2, 1], [-2, -1], [-1, -2], [1, -2]].each do |row_add, col_add|
+          new_square = current_square.copy.add(row_add, col_add)
+          available_moves << new_square if
+            Board.is_valid_square?(new_square) && !is_obstructed?(board, current_square, new_square)
+        end
+        available_moves
       end
     end
 

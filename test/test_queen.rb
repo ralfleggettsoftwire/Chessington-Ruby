@@ -44,42 +44,14 @@ class TestQueen < Minitest::Test
     assert_equal(27, moves.length)
   end
 
-  def test_white_queen_blocked_by_white_piece_13
+  def test_white_queen_blocked_by_white_piece
     blocked_test_wrapper(Player::WHITE, Player::WHITE, Square.at(1, 3), [Square.at(1, 3), Square.at(0, 3)])
-    # blocked_test_wrapper(Player::WHITE, Player::WHITE, Square.at(6, 3), [Square.at(6, 3), Square.at(7, 3)])
-    # blocked_test_wrapper(Player::WHITE, Player::WHITE, Square.at(3, 1), [Square.at(3, 1), Square.at(3, 0)])
-    # blocked_test_wrapper(Player::WHITE, Player::WHITE, Square.at(3, 6), [Square.at(3, 6), Square.at(3, 7)])
-    # blocked_test_wrapper(Player::WHITE, Player::WHITE, Square.at(6, 6), [Square.at(6, 6), Square.at(7, 7)])
-    # blocked_test_wrapper(Player::WHITE, Player::WHITE, Square.at(1, 5), [Square.at(1, 5), Square.at(0, 6)])
-    # blocked_test_wrapper(Player::WHITE, Player::WHITE, Square.at(1, 1), [Square.at(1, 1), Square.at(0, 0)])
-    # blocked_test_wrapper(Player::WHITE, Player::WHITE, Square.at(5, 1), [Square.at(5, 1), Square.at(6, 0)])
-  end
-
-  def test_white_queen_blocked_by_white_piece_63
     blocked_test_wrapper(Player::WHITE, Player::WHITE, Square.at(6, 3), [Square.at(6, 3), Square.at(7, 3)])
-  end
-
-  def test_white_queen_blocked_by_white_piece_31
     blocked_test_wrapper(Player::WHITE, Player::WHITE, Square.at(3, 1), [Square.at(3, 1), Square.at(3, 0)])
-  end
-
-  def test_white_queen_blocked_by_white_piece_36
     blocked_test_wrapper(Player::WHITE, Player::WHITE, Square.at(3, 6), [Square.at(3, 6), Square.at(3, 7)])
-  end
-
-  def test_white_queen_blocked_by_white_piece_66
     blocked_test_wrapper(Player::WHITE, Player::WHITE, Square.at(6, 6), [Square.at(6, 6), Square.at(7, 7)])
-  end
-
-  def test_white_queen_blocked_by_white_piece_15
     blocked_test_wrapper(Player::WHITE, Player::WHITE, Square.at(1, 5), [Square.at(1, 5), Square.at(0, 6)])
-  end
-
-  def test_white_queen_blocked_by_white_piece_11
     blocked_test_wrapper(Player::WHITE, Player::WHITE, Square.at(1, 1), [Square.at(1, 1), Square.at(0, 0)])
-  end
-
-  def test_white_queen_blocked_by_white_piece_51
     blocked_test_wrapper(Player::WHITE, Player::WHITE, Square.at(5, 1), [Square.at(5, 1), Square.at(6, 0)])
   end
 
