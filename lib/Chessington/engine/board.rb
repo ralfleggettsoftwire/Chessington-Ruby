@@ -47,6 +47,10 @@ module Chessington
         BOARD_SIZE
       end
 
+      def self.is_valid_square?(square)
+        square.row >= 0 && square.row < BOARD_SIZE && square.column >= 0 && square.column < BOARD_SIZE
+      end
+
       ##
       # Places the piece at the given position on the board.
       def set_piece(square, piece)
@@ -81,10 +85,6 @@ module Chessington
           set_piece(from_square, nil)
           @current_player = @current_player.opponent
         end
-      end
-
-      def is_valid_square?(square)
-        square.row >= 0 && square.row < BOARD_SIZE && square.column >= 0 && square.column < BOARD_SIZE
       end
 
       private_class_method :create_empty_board, :create_starting_board

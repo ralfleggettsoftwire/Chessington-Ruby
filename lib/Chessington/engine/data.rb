@@ -19,10 +19,16 @@ module Chessington
     Square = Struct.new(:row, :column) do
       class << self
         alias_method :at,:new
+      end
 
-        def ==(other)
-          self.row == other.row && self.column == other.column
-        end
+      def copy
+        Square.at(self.row, self.column)
+      end
+
+      def add(to_row, to_col)
+        self.row += to_row
+        self.column += to_col
+        self
       end
     end
   end
