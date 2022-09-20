@@ -84,6 +84,7 @@ module Chessington
         moving_piece = get_piece(from_square)
         if !moving_piece.nil? && moving_piece.player == @current_player
           en_passant_check_and_execute(from_square, to_square) if moving_piece.instance_of?(Pawn)
+          castling_check_and_execute(from_square, to_square) if moving_piece.instance_of?(King)
           set_piece(to_square, moving_piece)
           set_piece(from_square, nil)
           if @current_player == Player::WHITE
@@ -101,8 +102,20 @@ module Chessington
       private_class_method :create_empty_board, :create_starting_board
 
       private def en_passant_check_and_execute(from_square, to_square)
-        if from_square.column != to_square.column
-          set_piece(Square.at(from_square.row, to_square.column), nil)
+        en_passant_square = Square.at(from_square.row, to_square.column)
+        en_passant_piece = get_piece(en_passant_square)
+        if from_square.column != to_square.column && en_passant_piece && en_passant_piece.last_piece_to_move
+          set_piece(en_passant_square, nil)
+        end
+      end
+
+      private def castling_check_and_execute(from_square, to_square)
+        if (from_square.column - to_square.column).abs > 1
+          rook_from_square = to_square.column < 4 ? Square.at(from_square.row, 0) : Square.at(from_square.row, 7)
+          rook_to_square = to_square.column < 4 ? Square.at(from_square.row, 3) : Square.at(from_square.row, 5)
+          rook = get_piece(rook_from_square)
+          set_piece(rook_to_square, rook)
+          set_piece(rook_from_square, nil)
         end
       end
     end
