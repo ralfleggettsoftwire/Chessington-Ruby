@@ -124,55 +124,68 @@ module Chessington
         end
       end
 
-      def add_forward_move_if_valid(current_square, available_moves)
+      def get_valid_forward_moves(board, current_square)
+        valid_moves = []
         new_square = current_square.copy.add(@player == Player::WHITE ? 1 : -1, 0)
-        available_moves << new_square unless
+        valid_moves << new_square unless
           !Board.is_valid_square?(new_square) || is_obstructed?(board, current_square, new_square)
+
+        valid_moves
       end
 
-      def add_double_forward_move_if_valid(current_square, available_moves)
+      def get_valid_double_forward_moves(board, current_square)
+        valid_moves = []
         new_square = current_square.copy.add(@player == Player::WHITE ? 2 : -2, 0)
-        available_moves << new_square unless
+        valid_moves << new_square unless
           !Board.is_valid_square?(new_square) || @moves_made > 0 || is_obstructed?(board, current_square, new_square)
+
+        valid_moves
       end
 
-      def add_diagonal_moves_if_valid(current_square, available_moves)
+      def get_valid_diagonal_moves(board, current_square)
+        valid_moves = []
         left_square = current_square.copy.add(@player == Player::WHITE ? 1 : -1, @player == Player::WHITE ? -1 : 1)
-        available_moves << left_square if Board.is_valid_square?(left_square) && opponent_piece_at?(board, left_square)
+        valid_moves << left_square if Board.is_valid_square?(left_square) && opponent_piece_at?(board, left_square)
 
         right_square = current_square.copy.add(@player == Player::WHITE ? 1 : -1, @player == Player::WHITE ? 1 : -1)
-        available_moves << right_square if Board.is_valid_square?(right_square) && opponent_piece_at?(board, right_square)
+        valid_moves << right_square if Board.is_valid_square?(right_square) && opponent_piece_at?(board, right_square)
+
+        valid_moves
       end
 
-      def add_en_passant_moves_if_valid(current_square, available_moves)
+      def get_valid_en_passant_moves(board, current_square)
+        valid_moves = []
+
         # Check for en passant on left (and allow move to new_square if so)
         left_square = current_square.copy.add(@player == Player::WHITE ? 1 : -1, @player == Player::WHITE ? -1 : 1)
         en_passant_left_square = current_square.copy.add(0, @player == Player::WHITE ? -1 : 1)
-        available_moves << left_square if
+        valid_moves << left_square if
           Board.is_valid_square?(left_square) && opponent_piece_at?(board, en_passant_left_square) &&
             board.get_piece(en_passant_left_square).moves_made == 1 &&
             board.get_piece(en_passant_left_square).instance_of?(Pawn) &&
-            board.get_piece(en_passant_left_square).last_piece_to_move && !available_moves.include?(left_square)
+            board.get_piece(en_passant_left_square).last_piece_to_move
 
         # Check for en passant on right (and allow move to new_square if so)
         right_square = current_square.copy.add(@player == Player::WHITE ? 1 : -1, @player == Player::WHITE ? 1 : -1)
         en_passant_right_square = current_square.copy.add(0, @player == Player::WHITE ? 1 : -1)
-        available_moves << right_square if
+        valid_moves << right_square if
           Board.is_valid_square?(right_square) && opponent_piece_at?(board, en_passant_right_square) &&
             board.get_piece(en_passant_right_square).moves_made == 1 &&
             board.get_piece(en_passant_right_square).instance_of?(Pawn) &&
-            board.get_piece(en_passant_right_square).last_piece_to_move && !available_moves.include?(right_square)
+            board.get_piece(en_passant_right_square).last_piece_to_move
+
+        valid_moves
       end
 
       def available_moves(board)
         available_moves = []
         current_square = board.find_piece(self)
 
-        add_forward_move_if_valid(current_square, available_moves)
-        add_double_forward_move_if_valid(current_square, available_moves)
-        add_diagonal_moves_if_valid(current_square, available_moves)
-        add_en_passant_moves_if_valid(current_square, available_moves)
-        available_moves
+        available_moves += get_valid_forward_moves(board, current_square)
+        available_moves += get_valid_double_forward_moves(board, current_square)
+        available_moves += get_valid_diagonal_moves(board, current_square)
+        available_moves += get_valid_en_passant_moves(board, current_square)
+        available_moves.uniq
       end
     end
 
